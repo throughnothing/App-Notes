@@ -3,8 +3,32 @@ Changes from 2011-04-25 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.001 at 2012-04-24 06:23:09 +0000
+version 0.002 at 2012-04-24 08:57:52 +0000
 ------------------------------------------
+
+  Change: 9c5f4cbc1cdae45e5a2d2b5c3a08701c677a9c67
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 04:47:57 +0000
+
+    Add Automatic Syncing, with ability to disable.
+
+    Disable with export APP_NOTES_AUTOSYNC=0; 
+
+  Change: 00d15924427938f5a59777845d9ab2a13f21c1bd
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 03:50:23 +0000
+
+    Add STDIN ability to add/edit. 
+
+------------------------------------------
+version 0.001 at 2012-04-24 06:23:22 +0000
+------------------------------------------
+
+  Change: f80dd3fd8ca6e5551fbedd24d5f51019d72aba84
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 02:23:22 +0000
+
+    v0.001 
 
   Change: dbe25ddfbb159fa8695cd35a174450670a064156
   Author: William Wolf <throughnothing@gmail.com>
