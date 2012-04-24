@@ -1,0 +1,282 @@
+#!/usr/bin/env perl
+use v5.10;
+use strict;
+use warnings;
+use App::Rad;
+use Capture::Tiny qw( capture );
+use Git::Repository;
+use Path::Class qw( file dir );
+
+# ABSTRACT: Simple. Git-based. Notes.
+
+sub setup {
+    my ( $c ) = @_;
+    $c->register_commands({
+        add     => 'add a new note, and edit it',
+        append  => 'append the content of stdin to the note ( from STDIN )',
+        delete  => 'delete the note',
+        edit    => 'edit a note',
+        init    => 'Initiliazie notes (optionally from remote repo)',
+        list    => 'lists id and subject of all notes',
+        replace => 'replace the contents of the note ( from STDIN )',
+        show    => 'show the contents of the note',
+        sync    => 'Sync notes with remote (pull + push)',
+    });
+}
+
+sub pre_process {
+    my ( $c ) = @_;
+
+    # If we aren't initializing, check to make sure
+    # Our notes directory exists
+    if( $c->cmd ne 'init' ) {
+        if( -d notes_repo() ) {
+            $c->stash->{git} = Git::Repository->new( git_dir => notes_repo() );
+        } else {
+            # We are not initialized
+            die "Notes Directory has not been initialized!\n" .
+                "Run init [remote git repo] to initialize.\n";
+        }
+    }
+}
+
+App::Rad->run;
+
+# helpers ---------------------------------------------------------------------
+
+sub editor { $ENV{EDITOR} || 'vim' }
+sub notes_dir { dir( $ENV{APP_NOTES_DIR} ) || dir( $ENV{HOME}, '.notes' ) }
+sub notes_repo { file( notes_dir, '.git' ) }
+
+sub find_notes {
+    my ( $c, %args ) = @_;
+    my $sort = $args{sort} // 1;
+
+    opendir my $dh, notes_dir();
+    my @notes = map {
+        file( notes_dir(), $_ )
+    } grep { !/^\./ } readdir( $dh );
+
+    # Sort only if requested (default)
+    @notes = sort { -M $a <=> -M $b } @notes if( $sort );
+    # Filter if needed
+    @notes = grep { /$args{search}/i } @notes if $args{search};
+
+    # Return most recent match
+    return \@notes;
+}
+
+sub read_stdin { local $/; <STDIN> }
+
+sub get_title { join ' ', @ARGV; }
+
+sub get_filename {
+    return undef unless $_[0];
+    ( my $r = $_[0] ) =~ s/ /-/g;
+    return  $r;
+}
+
+sub edit_file {
+    my ( $c, $file ) = @_;
+
+    my $verb = ( -e $file->stringify ) ? "Updated " : "Created ";
+    my $cmd = [ editor(), $file ];
+
+    # Let them edit the file
+    system join( ' ', @$cmd );
+
+    # Commit their changes if they wrote the file
+    if ( -e $file ) {
+        my $output = capture {
+            $c->stash->{git}->run( add => $file->stringify );
+            $c->stash->{git}->run( commit => '-m', $verb . $file->basename );
+        };
+    }
+}
+
+sub default { $_[0]->execute('edit') }
+
+# commands --------------------------------------------------------------------
+
+sub add {
+    my ( $c ) = @_;
+    my $title = get_title();
+    die "Need a title!" unless $title;
+
+    edit_file( $c, file( notes_dir(), get_filename( $title ) ) );
+}
+
+sub append {
+    my ( $c ) = @_;
+    my $title = get_title();
+    my $notes = find_notes( $c, search => get_filename( $title ) );
+
+    die "No matching notes found" unless @$notes > 0;
+
+    my $file = $notes->[0];
+    my $in = read_stdin();
+
+    system "echo \"$in\" >> $file";
+    my $output = capture {
+        $c->stash->{git}->run( add => $file->stringify );
+        $c->stash->{git}->run( commit => '-m', "Updated " . $file->basename );
+    };
+}
+
+sub delete {
+    my ( $c ) = @_;
+    my $title = get_title();
+    my $notes = find_notes( $c, search => get_filename( $title ) );
+
+    die "No matching note found!" unless @$notes > 0;
+    my $to_rm = $notes->[0];
+
+    say "Delete \"" . $to_rm->basename . "\" ?";
+    my $res = <STDIN>;
+
+    if( $res ~~ /^y(es)?$/i ) {
+        my $msg = "Removed \"". $to_rm->basename . "\".";
+        my $output = capture {
+            $c->stash->{git}->run( rm => $to_rm->stringify );
+            $c->stash->{git}->run( commit => -m => $msg );
+        }
+        return $msg;
+    } else {
+        return "Not Removed.";
+    }
+}
+
+sub edit {
+    my ( $c ) = @_;
+    my $title = get_title();
+    my $notes = find_notes( $c, search => get_filename( $title ) );
+
+    die "No matching notes found!" unless @$notes > 0;
+    my $to_edit = $notes->[0];
+
+    edit_file( $c, $to_edit );
+}
+
+sub init {
+    my ( $c ) = @_;
+
+    die "Notes dir already exists!" if -d notes_dir();
+
+    my $dir = notes_dir();
+    my $repo = $ARGV[0];
+    my $output = capture {
+        if( $repo ) {
+            say "Initializing notes from $repo...";
+            Git::Repository->run( clone => $repo, $dir->stringify );
+        } else {
+            say "Initializing notes ($dir)...";
+            print Git::Repository->run( init => $dir->stringify );
+        }
+    }
+}
+
+sub list {
+    my ( $c ) = @_;
+    my $search = @ARGV > 0 ? join ' ', @ARGV : undef;
+    my $notes = find_notes( $c, search => get_filename( $search ) );
+    say $_->basename for @$notes;
+}
+
+sub replace {
+    my ( $c ) = @_;
+    my $title = get_title();
+    my $notes = find_notes( $c, search => get_filename( $title ) );
+
+    die "No matching notes found" unless @$notes > 0;
+
+    my $file = $notes->[0];
+    my $in = read_stdin();
+
+    system "echo \"$in\" > $file";
+    my $output = capture {
+        $c->stash->{git}->run( add => $file->stringify );
+        $c->stash->{git}->run( commit => '-m', "Updated " . $file->basename );
+    };
+}
+
+sub show {
+    my ( $c ) = @_;
+    my $title = get_title();
+    my $notes = find_notes( $c, search => get_filename( $title ) );
+
+    die "No matching notes found" unless @$notes > 0;
+
+    system "cat $notes->[0]";
+}
+
+sub sync {
+    my ( $c ) = @_;
+    say "Syncing notes...";
+    my $output = capture {
+        $c->stash->{git}->run( 'pull' );
+        $c->stash->{git}->run( 'push' );
+    };
+    return;
+}
+
+# PODNAME: notes
+
+=head1 SYNOPSIS
+
+    Usage: notes command [arguments]
+
+    Available Commands:
+        add     add a new note, and edit it
+        append  append the content of stdin to the note ( from STDIN )
+        delete  delete the note
+        edit    edit a note
+        help    show syntax and available commands
+        init    Initiliazie notes (optionally from remote repo)
+        list    lists id and subject of all notes
+        replace replace the contents of the note ( from STDIN )
+        show    show the contents of the note
+        sync    Sync notes with remote (pull + push)
+
+    # To get started
+    $ notes init
+    # Or, optionally, get started with an existing git repo
+    $ notes init git@gist.github.com:12343.git
+
+    # Create a note and edit it (with $EDITOR, or vim by default)
+    # Note name will be Hello-World
+    $ notes add Hello World
+    # Add another (markdown) note
+    $ notes add TEST.md
+
+    # List notes
+    $ notes list
+    TEST.md
+    Hello-World
+
+    # List notes w/filter (case-insensitive)
+    $ notes list te
+    TEST.md
+
+    # Edit a note (finds the most recently edited match, case insensitive)
+    # This will open up the Hello-World note created above
+    $ notes edit hel
+
+    # Defaults to edit if no command given (does same as above)
+    $ notes hel
+
+    # Sync notes with remote (if your git repo has a remote)
+    $ notes sync
+
+=head1 DESCRIPTION
+
+L<App::Notes> is a very simple command line tool that lets you creat, edit,
+search, and manage simple text-based notes inside of a git repository.
+
+This is very useful for keeping notes in a repository
+(especially a C<gist> on L<GitHub|http://github.com>) that can be sync'ed
+across machines, and also for keeping a history of all your notes.
+
+Every time a note is created, modified or removed, L<App::notes> will commit
+the change to the git repo.  It will not C<pull> or C<push> unless you
+issue the C<sync> command.
+
