@@ -4,7 +4,7 @@ notes - Simple. Git-based. Notes.
 
 # VERSION
 
-version 0.001
+version 0.002
 
 # SYNOPSIS
 
@@ -12,7 +12,7 @@ version 0.001
 
     Available Commands:
         add     add a new note, and edit it
-        append  append the content of stdin to the note ( from STDIN )
+        append  append to a note ( from STDIN )
         delete  delete the note
         edit    edit a note
         help    show syntax and available commands
@@ -30,8 +30,8 @@ version 0.001
     # Create a note and edit it (with $EDITOR, or vim by default)
     # Note name will be Hello-World
     $ notes add Hello World
-    # Add another (markdown) note
-    $ notes add TEST.md
+    # Add another (markdown) note via STDIN
+    $ echo "# Title" | notes add TEST.md
 
     # List notes
     $ notes list
@@ -46,8 +46,11 @@ version 0.001
     # This will open up the Hello-World note created above
     $ notes edit hel
 
-    # Defaults to edit if no command given (does same as above)
-    $ notes hel
+    # Will replace the contents of Hello-World with "Hello, World"
+    $ echo "Hello, World" | notes replace hel
+
+    # Will append "END" to Hello-World
+    $ echo "END" | notes append he
 
     # Sync notes with remote (if your git repo has a remote)
     $ notes sync
@@ -62,8 +65,10 @@ This is very useful for keeping notes in a repository
 across machines, and also for keeping a history of all your notes.
 
 Every time a note is created, modified or removed, [App::Notes](http://search.cpan.org/perldoc?App::Notes) will commit
-the change to the git repo.  It will not `pull` or `push` unless you
-issue the `sync` command.
+the change to the git repo.  By default, It will `pull` before each command
+executes, and `push` when its done (except on `list` and `show` commands).
+To turn this behavior off, set `APP_NOTES_AUTO_SYNC=0`, and then you can
+manually pull/push with `notes sync`.
 
 # AUTHOR
 

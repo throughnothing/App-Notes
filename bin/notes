@@ -13,7 +13,7 @@ sub setup {
     my ( $c ) = @_;
     $c->register_commands({
         add     => 'add a new note, and edit it',
-        append  => 'append the content of stdin to the note ( from STDIN )',
+        append  => 'append to a note',
         delete  => 'delete the note',
         edit    => 'edit a note',
         init    => 'Initiliazie notes (optionally from remote repo)',
@@ -38,6 +38,17 @@ sub pre_process {
                 "Run init [remote git repo] to initialize.\n";
         }
     }
+
+    # Sync if autosync
+    sync( $c, pull_only => 1 ) if( auto_sync() );
+}
+
+sub post_process {
+    my ( $c ) = @_;
+    my $cmd = $c->cmd;
+    if( auto_sync() && grep { !/$cmd/ } qw( list show ) ) {
+        sync( $c, push_only => 1 );
+    }
 }
 
 App::Rad->run;
@@ -47,6 +58,7 @@ App::Rad->run;
 sub editor { $ENV{EDITOR} || 'vim' }
 sub notes_dir { dir( $ENV{APP_NOTES_DIR} ) || dir( $ENV{HOME}, '.notes' ) }
 sub notes_repo { file( notes_dir, '.git' ) }
+sub auto_sync {  $ENV{APP_NOTES_AUTOSYNC} // 1 }
 
 sub find_notes {
     my ( $c, %args ) = @_;
@@ -68,6 +80,8 @@ sub find_notes {
 
 sub read_stdin { local $/; <STDIN> }
 
+sub check_stdin { ( -t STDIN ) ? 0 : read_stdin() }
+
 sub get_title { join ' ', @ARGV; }
 
 sub get_filename {
@@ -77,13 +91,21 @@ sub get_filename {
 }
 
 sub edit_file {
-    my ( $c, $file ) = @_;
+    my ( $c, $file, %args ) = @_;
 
+    $args{check_stdin} //= 1; # Default to check stdin
     my $verb = ( -e $file->stringify ) ? "Updated " : "Created ";
-    my $cmd = [ editor(), $file ];
 
-    # Let them edit the file
-    system join( ' ', @$cmd );
+    my $stdin = $args{check_stdin} ? check_stdin() : 0;
+    if( $stdin ) {
+        open FILE, ( $args{append} ? '>>' : '>' ), $file;
+        print FILE $stdin;
+        close FILE;
+    } else {
+        my $cmd = [ editor(), $file ];
+        # Let them edit the file
+        system join( ' ', @$cmd );
+    }
 
     # Commit their changes if they wrote the file
     if ( -e $file ) {
@@ -94,8 +116,6 @@ sub edit_file {
     }
 }
 
-sub default { $_[0]->execute('edit') }
-
 # commands --------------------------------------------------------------------
 
 sub add {
@@ -103,7 +123,10 @@ sub add {
     my $title = get_title();
     die "Need a title!" unless $title;
 
-    edit_file( $c, file( notes_dir(), get_filename( $title ) ) );
+    my $file = file( notes_dir(), get_filename( $title ) );
+    die "File already exists!" if -e $file;
+
+    edit_file( $c, $file );
 }
 
 sub append {
@@ -114,13 +137,7 @@ sub append {
     die "No matching notes found" unless @$notes > 0;
 
     my $file = $notes->[0];
-    my $in = read_stdin();
-
-    system "echo \"$in\" >> $file";
-    my $output = capture {
-        $c->stash->{git}->run( add => $file->stringify );
-        $c->stash->{git}->run( commit => '-m', "Updated " . $file->basename );
-    };
+    edit_file( $c, $file, append => 1 );
 }
 
 sub delete {
@@ -131,16 +148,15 @@ sub delete {
     die "No matching note found!" unless @$notes > 0;
     my $to_rm = $notes->[0];
 
-    say "Delete \"" . $to_rm->basename . "\" ?";
+    print "Delete \"" . $to_rm->basename . "\" ? ";
     my $res = <STDIN>;
 
     if( $res ~~ /^y(es)?$/i ) {
-        my $msg = "Removed \"". $to_rm->basename . "\".";
         my $output = capture {
+            my $msg = "Removed \"". $to_rm->basename . "\".";
             $c->stash->{git}->run( rm => $to_rm->stringify );
             $c->stash->{git}->run( commit => -m => $msg );
-        }
-        return $msg;
+        };
     } else {
         return "Not Removed.";
     }
@@ -154,7 +170,7 @@ sub edit {
     die "No matching notes found!" unless @$notes > 0;
     my $to_edit = $notes->[0];
 
-    edit_file( $c, $to_edit );
+    edit_file( $c, $to_edit, check_stdin => 0 );
 }
 
 sub init {
@@ -190,13 +206,7 @@ sub replace {
     die "No matching notes found" unless @$notes > 0;
 
     my $file = $notes->[0];
-    my $in = read_stdin();
-
-    system "echo \"$in\" > $file";
-    my $output = capture {
-        $c->stash->{git}->run( add => $file->stringify );
-        $c->stash->{git}->run( commit => '-m', "Updated " . $file->basename );
-    };
+    edit_file( $c, $file );
 }
 
 sub show {
@@ -210,11 +220,10 @@ sub show {
 }
 
 sub sync {
-    my ( $c ) = @_;
-    say "Syncing notes...";
+    my ( $c, %args ) = @_;
     my $output = capture {
-        $c->stash->{git}->run( 'pull' );
-        $c->stash->{git}->run( 'push' );
+        $c->stash->{git}->run( 'pull' ) unless $args{push_only};
+        $c->stash->{git}->run( 'push' ) unless $args{pull_only};
     };
     return;
 }
@@ -227,7 +236,7 @@ sub sync {
 
     Available Commands:
         add     add a new note, and edit it
-        append  append the content of stdin to the note ( from STDIN )
+        append  append to a note ( from STDIN )
         delete  delete the note
         edit    edit a note
         help    show syntax and available commands
@@ -245,8 +254,8 @@ sub sync {
     # Create a note and edit it (with $EDITOR, or vim by default)
     # Note name will be Hello-World
     $ notes add Hello World
-    # Add another (markdown) note
-    $ notes add TEST.md
+    # Add another (markdown) note via STDIN
+    $ echo "# Title" | notes add TEST.md
 
     # List notes
     $ notes list
@@ -261,8 +270,11 @@ sub sync {
     # This will open up the Hello-World note created above
     $ notes edit hel
 
-    # Defaults to edit if no command given (does same as above)
-    $ notes hel
+    # Will replace the contents of Hello-World with "Hello, World"
+    $ echo "Hello, World" | notes replace hel
+
+    # Will append "END" to Hello-World
+    $ echo "END" | notes append he
 
     # Sync notes with remote (if your git repo has a remote)
     $ notes sync
@@ -277,6 +289,8 @@ This is very useful for keeping notes in a repository
 across machines, and also for keeping a history of all your notes.
 
 Every time a note is created, modified or removed, L<App::Notes> will commit
-the change to the git repo.  It will not C<pull> or C<push> unless you
-issue the C<sync> command.
+the change to the git repo.  By default, It will C<pull> before each command
+executes, and C<push> when its done (except on C<list> and C<show> commands).
+To turn this behavior off, set C<APP_NOTES_AUTO_SYNC=0>, and then you can
+manually pull/push with C<notes sync>.
 
