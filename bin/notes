@@ -52,19 +52,18 @@ sub post_process {
     say $c->output if $c->output;
 }
 
-# TODO: This is broken. notes li will list stuff, then displays help.
-#sub invalid {
-#    my ( $c, $cmd ) = @_;
-#    $cmd //= $c->cmd;
-#
-#    unless ($c->is_command($cmd)) {
-#        my @cmds = grep { /^$cmd/ } $c->commands;
-#        $cmd = $cmds[0] if (@cmds == 1);
-#    }
-#
-#    $c->execute( $cmd ) and return if $c->is_command( $cmd );
-#    $c->execute( 'help' ) and return;
-#}
+sub invalid {
+    my ( $c, $cmd ) = @_;
+    $cmd //= $c->cmd;
+
+    unless ($c->is_command($cmd)) {
+        my @cmds = grep { /^$cmd/ } $c->commands;
+        $cmd = $cmds[0] if (@cmds == 1);
+    }
+
+    $c->execute( $cmd ) and return if $c->is_command( $cmd );
+    $c->execute( 'help' ) and return;
+}
 
 App::Rad->run;
 
