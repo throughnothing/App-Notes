@@ -3,12 +3,38 @@ Changes from 2011-04-25 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.003 at 2012-04-24 10:14:58 +0000
+version 0.003 at 2012-04-24 18:10:00 +0000
 ------------------------------------------
 
-  Change: b9a1eb5de18d00e9c4d14d2a8479e9f95c9a78bd
+  Change: 8b0eb6886e93afe91e9929242b076a6ae5f490f7
   Author: William Wolf <throughnothing@gmail.com>
-  Date : 2012-04-24 06:10:40 +0000
+  Date : 2012-04-24 10:58:52 +0000
+
+    Merge pull request #2 from ironcamel/no-sync-for-help
+
+    Don't sync unnecessarily. 
+
+  Change: ef697be56c7a9dad0613d9d189cd55ab896bddc5
+  Author: Naveed Massjouni <naveedm9@gmail.com>
+  Date : 2012-04-24 13:57:03 +0000
+
+    Fixing typo auth_sync() => auto_sync() 
+
+  Change: 24a231d18fab0c1c6a736c35aa0d8859bcf6a465
+  Author: Naveed Massjouni <naveedm9@gmail.com>
+  Date : 2012-04-24 13:53:50 +0000
+
+    Updating authors 
+
+  Change: 1ddc0f620232ac931da5d6f6e71092becb6d17ea
+  Author: Naveed Massjouni <naveedm9@gmail.com>
+  Date : 2012-04-24 13:35:40 +0000
+
+    Don't sync unnecessarily. 
+
+  Change: 42a574b7f4d103441294e4c8b103f9a875aed0b1
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 06:15:20 +0000
 
     Abbrev fixes 
 

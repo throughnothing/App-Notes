@@ -10,7 +10,7 @@ use ExtUtils::MakeMaker 6.30;
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Simple. Git-based. Notes.",
-  "AUTHOR" => "William Wolf <throughnothing\@gmail.com>",
+  "AUTHOR" => "William Wolf <throughnothing\@gmail.com>, Naveed Massjouni <naveedm9\@gmail.com>",
   "BUILD_REQUIRES" => {
     "File::Find" => 0,
     "File::Temp" => 0,
