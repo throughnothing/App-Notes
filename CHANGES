@@ -3,12 +3,18 @@ Changes from 2011-04-25 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.001 at 2012-04-24 06:19:44 +0000
+version 0.001 at 2012-04-24 06:23:09 +0000
 ------------------------------------------
 
-  Change: a75a4f9593c1f238cf3bf01487a0500b06548c51
+  Change: dbe25ddfbb159fa8695cd35a174450670a064156
   Author: William Wolf <throughnothing@gmail.com>
-  Date : 2012-04-24 02:18:43 +0000
+  Date : 2012-04-24 02:23:05 +0000
+
+    update .gitignore 
+
+  Change: 81a91f6bf00742899f96ea2a16fdf9d4a6ce0c8e
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 02:19:49 +0000
 
     App::notes -> App::Notes 
 
