@@ -19,12 +19,12 @@ my %WriteMakefileArgs = (
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
-  "DISTNAME" => "App-notes",
+  "DISTNAME" => "App-Notes",
   "EXE_FILES" => [
     "bin/notes"
   ],
   "LICENSE" => "unrestricted",
-  "NAME" => "App::notes",
+  "NAME" => "App::Notes",
   "PREREQ_PM" => {
     "App::Rad" => 0,
     "Capture::Tiny" => 0,

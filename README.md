@@ -61,7 +61,7 @@ This is very useful for keeping notes in a repository
 (especially a `gist` on [GitHub](http://github.com)) that can be sync'ed
 across machines, and also for keeping a history of all your notes.
 
-Every time a note is created, modified or removed, [App::notes](http://search.cpan.org/perldoc?App::notes) will commit
+Every time a note is created, modified or removed, [App::Notes](http://search.cpan.org/perldoc?App::Notes) will commit
 the change to the git repo.  It will not `pull` or `push` unless you
 issue the `sync` command.
 
