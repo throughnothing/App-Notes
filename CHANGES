@@ -3,8 +3,14 @@ Changes from 2011-04-25 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.002 at 2012-04-24 09:01:22 +0000
+version 0.002 at 2012-04-24 09:05:30 +0000
 ------------------------------------------
+
+  Change: b4b0709ef45d39bb002953f76513de07d154dece
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 05:05:30 +0000
+
+    v0.002 
 
   Change: c385c08a59e73e84a20582bcf8172f75a8d67641
   Author: William Wolf <throughnothing@gmail.com>

@@ -49,6 +49,18 @@ sub post_process {
     if( auto_sync() && grep { !/$cmd/ } qw( list show ) ) {
         sync( $c, push_only => 1 );
     }
+    say $c->output if $c->output;
+}
+
+sub invalid {
+    my ( $c, $cmd ) = @_;
+    $cmd //= $c->cmd;
+
+    unless ($c->is_command($cmd)) {
+        my @cmds = grep { /^$cmd/ } $c->commands;
+        $c->execute( $cmds[0] ) if (@cmds == 1);
+    }
+    return;
 }
 
 App::Rad->run;
@@ -196,6 +208,7 @@ sub list {
     my $search = @ARGV > 0 ? join ' ', @ARGV : undef;
     my $notes = find_notes( $c, search => get_filename( $search ) );
     say $_->basename for @$notes;
+    return;
 }
 
 sub replace {
