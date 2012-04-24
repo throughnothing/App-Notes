@@ -47,7 +47,7 @@ version 0.002
     $ notes edit hel
 
     # Will replace the contents of Hello-World with "Hello, World"
-    $ echo "Hello, World" | notes edit hel
+    $ echo "Hello, World" | notes replace hel
 
     # Will append "END" to Hello-World
     $ echo "END" | notes append he
@@ -65,8 +65,10 @@ This is very useful for keeping notes in a repository
 across machines, and also for keeping a history of all your notes.
 
 Every time a note is created, modified or removed, [App::Notes](http://search.cpan.org/perldoc?App::Notes) will commit
-the change to the git repo.  It will not `pull` or `push` unless you
-issue the `sync` command.
+the change to the git repo.  By default, It will `pull` before each command
+executes, and `push` when its done (except on `list` and `show` commands).
+To turn this behavior off, set `APP_NOTES_AUTO_SYNC=0`, and then you can
+manually pull/push with `notes sync`.
 
 # AUTHOR
 
