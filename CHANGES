@@ -3,12 +3,21 @@ Changes from 2011-04-25 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.002 at 2012-04-24 08:57:52 +0000
+version 0.002 at 2012-04-24 09:01:22 +0000
 ------------------------------------------
 
-  Change: 9c5f4cbc1cdae45e5a2d2b5c3a08701c677a9c67
+  Change: c385c08a59e73e84a20582bcf8172f75a8d67641
   Author: William Wolf <throughnothing@gmail.com>
-  Date : 2012-04-24 04:47:57 +0000
+  Date : 2012-04-24 02:00:24 +0000
+
+    Merge pull request #1 from throughnothing/stdin
+
+    Add Automatic Syncing, with ability to disable. Add STDIN ability to
+    add/edit. 
+
+  Change: ff0ad9638a3346ae4fa414963d04c0de29d40a0b
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 04:57:57 +0000
 
     Add Automatic Syncing, with ability to disable.
 
