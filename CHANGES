@@ -3,6 +3,22 @@ Changes from 2011-04-25 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
+version 0.003 at 2012-04-24 10:14:58 +0000
+------------------------------------------
+
+  Change: b9a1eb5de18d00e9c4d14d2a8479e9f95c9a78bd
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 06:10:40 +0000
+
+    Abbrev fixes 
+
+  Change: 11b0bbd94e97756f08837846cc90348a871102e1
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 05:59:27 +0000
+
+    Add ability to abbreviate commands. 
+
+------------------------------------------
 version 0.002 at 2012-04-24 09:05:30 +0000
 ------------------------------------------
 
