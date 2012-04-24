@@ -5,3 +5,5 @@ Makefile
 Makefile.old
 .build
 App-notes-*
+MYMETA*
+pm_to_blib
