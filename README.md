@@ -4,13 +4,11 @@ App::Notes - Simple. Git-based. Notes.
 
 # VERSION
 
-version 0.004
+version 0.005
 
 # SYNOPSIS
 
 Check out [notes](http://search.cpan.org/perldoc?notes) for more info.
-
-1;
 
 # AUTHORS
 

@@ -1,10 +1,46 @@
 ==================================================
-Changes from 2011-04-25 00:00:00 +0000 to present.
+Changes from 2011-05-02 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.004 at 2012-04-24 18:41:08 +0000
+version 0.005 at 2012-05-01 04:04:25 +0000
 ------------------------------------------
+
+  Change: 60e4d7fe1c01ec5c13c58efc050973f2775880fe
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-01 00:04:16 +0000
+
+    Merge branch 'master' of github.com:throughnothing/App-Notes 
+
+  Change: b77f0792c25eb5e1d59491c07990dc92b4f77ad9
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-30 21:03:51 +0000
+
+    Merge pull request #3 from ironcamel/no-sync-on-init
+
+    Don't sync on init. 
+
+  Change: 1ebf487495408adb7c8ded5e2808522222fbf4a0
+  Author: Naveed Massjouni <naveedm9@gmail.com>
+  Date : 2012-04-30 23:54:06 +0000
+
+    Don't sync on init. 
+
+  Change: 056029ca23b889643f8e72ddfce1a1e8b6538e74
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 14:42:45 +0000
+
+    Update pod in App::Notes 
+
+------------------------------------------
+version 0.004 at 2012-04-24 18:41:12 +0000
+------------------------------------------
+
+  Change: 16d66c4cbf4c25135b300f63286e5f54f7616ead
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-04-24 14:41:12 +0000
+
+    v0.004 
 
   Change: 17e7efa3881918de6fa083ba78ba413d515d8402
   Author: William Wolf <throughnothing@gmail.com>
