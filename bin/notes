@@ -39,14 +39,14 @@ sub pre_process {
         }
     }
 
-    return if not $c->is_command($cmd) or $cmd ~~ [qw( help sync )];
+    return if not $c->is_command($cmd) or $cmd ~~ [qw( help init sync )];
     sync( $c, pull_only => 1 ) if auto_sync();
 }
 
 sub post_process {
     my ( $c ) = @_;
     my $cmd = $c->cmd;
-    if( $c->is_command($cmd) and not $cmd ~~ [qw( help list show sync )] ) {
+    if($c->is_command($cmd) and not $cmd ~~ [qw( help init list show sync )]) {
         sync( $c, push_only => 1 ) if auto_sync();
     }
     say $c->output if $c->output;
