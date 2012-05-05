@@ -53,16 +53,10 @@ sub post_process {
 }
 
 sub invalid {
-    my ( $c, $cmd ) = @_;
-    $cmd //= $c->cmd;
-
-    unless ($c->is_command($cmd)) {
-        my @cmds = grep { /^$cmd/ } $c->commands;
-        $cmd = $cmds[0] if (@cmds == 1);
-    }
-
-    $c->execute( $cmd ) and return if $c->is_command( $cmd );
-    $c->execute( 'help' ) and return;
+    my ( $c ) = @_;
+    my $cmd = $c->cmd;
+    ($cmd) = grep { /^$cmd/ } $c->commands;
+    $cmd ? $c->execute( $cmd ) : $c->execute( 'help' );
 }
 
 App::Rad->run;
