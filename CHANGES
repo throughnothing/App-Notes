@@ -3,8 +3,32 @@ Changes from 2011-05-06 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.006 at 2012-05-05 17:39:46 +0000
+version 0.007 at 2012-05-05 20:29:09 +0000
 ------------------------------------------
+
+  Change: 396390477bb28a35c954c54c14727bcfab1be0d8
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-05 13:28:57 +0000
+
+    Merge pull request #5 from ironcamel/pr/more-docs
+
+    Adding a bunch more documentation. 
+
+  Change: 6b26876cd802d215dfe92359f54b88aa558740b0
+  Author: Naveed Massjouni <naveedm9@gmail.com>
+  Date : 2012-05-05 14:13:09 +0000
+
+    Adding a bunch more documentation. 
+
+------------------------------------------
+version 0.006 at 2012-05-05 17:39:56 +0000
+------------------------------------------
+
+  Change: 316e781a5807373886991157b3def5774ccfa355
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-05 13:39:56 +0000
+
+    v0.006 
 
   Change: 11f54104d8bc919702c2f119545b8caff3a7d9ba
   Author: William Wolf <throughnothing@gmail.com>
