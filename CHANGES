@@ -1,10 +1,37 @@
 ==================================================
-Changes from 2011-05-02 00:00:00 +0000 to present.
+Changes from 2011-05-06 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.005 at 2012-05-01 04:04:25 +0000
+version 0.006 at 2012-05-05 17:39:46 +0000
 ------------------------------------------
+
+  Change: 11f54104d8bc919702c2f119545b8caff3a7d9ba
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-05 10:39:08 +0000
+
+    Merge pull request #4 from ironcamel/pr/fix-invalid-hook
+
+    Fixed a bug in the invalid() hook. 
+
+  Change: 73462dbd3a661a70e7b8e40f918cefe0b176a5bb
+  Author: Naveed Massjouni <naveedm9@gmail.com>
+  Date : 2012-05-05 12:38:43 +0000
+
+    Fixed a bug in the invalid() hook.
+
+    The help() function was being wrongly executed if an abbreviated
+    command was given. 
+
+------------------------------------------
+version 0.005 at 2012-05-01 04:04:47 +0000
+------------------------------------------
+
+  Change: 7563575d3becbc37680ab16aede3f24a96624d78
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-01 00:04:47 +0000
+
+    v0.005 
 
   Change: 60e4d7fe1c01ec5c13c58efc050973f2775880fe
   Author: William Wolf <throughnothing@gmail.com>
