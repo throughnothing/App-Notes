@@ -1,10 +1,38 @@
 ==================================================
-Changes from 2011-05-06 00:00:00 +0000 to present.
+Changes from 2011-05-11 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.007 at 2012-05-05 20:29:09 +0000
+version 0.008 at 2012-05-10 01:32:51 +0000
 ------------------------------------------
+
+  Change: 55f045e35d26b3e9d9b8cdfe302239ec9cd9bd50
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-09 18:28:02 +0000
+
+    Merge pull request #6 from throughnothing/handle-no-origin
+
+    Check for remote origin before sycing. 
+
+  Change: ef07c93f731d0aa26b6df38a00dd4e095d061275
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-09 21:25:05 +0000
+
+    Check for remote origin before sycing.
+
+    This will prevent errors when running simple commands if you only
+    have a local git repo setup ond don't have a remote origin to sync
+    to. 
+
+------------------------------------------
+version 0.007 at 2012-05-05 20:29:16 +0000
+------------------------------------------
+
+  Change: 181010ee545d55145c76f7f81b38712c03b611d5
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-05 16:29:16 +0000
+
+    v0.007 
 
   Change: 396390477bb28a35c954c54c14727bcfab1be0d8
   Author: William Wolf <throughnothing@gmail.com>
