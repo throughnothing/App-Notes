@@ -57,6 +57,7 @@ sub invalid {
     my $cmd = $c->cmd;
     ($cmd) = grep { /^$cmd/ } $c->commands;
     $cmd ? $c->execute( $cmd ) : $c->execute( 'help' );
+    return; # This makes the command name not be printed from the last line
 }
 
 App::Rad->run;
@@ -67,6 +68,10 @@ sub editor { $ENV{EDITOR} || 'vim' }
 sub notes_dir { dir( $ENV{APP_NOTES_DIR} ) || dir( $ENV{HOME}, '.notes' ) }
 sub notes_repo { file( notes_dir, '.git' ) }
 sub auto_sync {  $ENV{APP_NOTES_AUTOSYNC} // 1 }
+
+sub has_origin {
+    grep { /^origin$/ } split ' ', $_[0]->stash->{git}->run( 'remote' )
+}
 
 sub find_notes {
     my ( $c, %args ) = @_;
@@ -230,6 +235,8 @@ sub show {
 
 sub sync {
     my ( $c, %args ) = @_;
+    return unless has_origin( $c );
+
     my $output = capture {
         $c->stash->{git}->run( 'pull' ) unless $args{push_only};
         $c->stash->{git}->run( 'push' ) unless $args{pull_only};
