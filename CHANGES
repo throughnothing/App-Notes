@@ -1,10 +1,34 @@
 ==================================================
-Changes from 2011-05-11 00:00:00 +0000 to present.
+Changes from 2011-05-17 00:00:00 +0000 to present.
 ==================================================
 
 ------------------------------------------
-version 0.008 at 2012-05-10 01:32:51 +0000
+version 0.009 at 2012-05-16 20:35:20 +0000
 ------------------------------------------
+
+  Change: 7e98c5bd084ae58b8a27f548692328971c0f31c9
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-16 11:30:35 +0000
+
+    Merge pull request #7 from ironcamel/rename
+
+    Adding rename command 
+
+  Change: de674052428115385f0ab5675167ac14e555b07e
+  Author: Naveed Massjouni <naveedm9@gmail.com>
+  Date : 2012-05-15 21:34:31 +0000
+
+    Adding rename command 
+
+------------------------------------------
+version 0.008 at 2012-05-10 01:32:56 +0000
+------------------------------------------
+
+  Change: 429ee72e00e710d338833973160b7676161edcec
+  Author: William Wolf <throughnothing@gmail.com>
+  Date : 2012-05-09 21:32:56 +0000
+
+    v0.008 
 
   Change: 55f045e35d26b3e9d9b8cdfe302239ec9cd9bd50
   Author: William Wolf <throughnothing@gmail.com>
