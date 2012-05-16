@@ -18,10 +18,12 @@ sub setup {
         edit    => 'edit a note',
         init    => 'Initiliazie notes (optionally from remote repo)',
         list    => 'lists id and subject of all notes',
+        rename  => 'rename a note',
         replace => 'replace the contents of the note ( from STDIN )',
         show    => 'show the contents of the note',
         sync    => 'Sync notes with remote (pull + push)',
     });
+    $c->register_command(mv => \&rename, 'alias for rename');
 }
 
 sub pre_process {
@@ -103,6 +105,8 @@ sub get_filename {
     return  $r;
 }
 
+sub is_yes { shift ~~ /^y(es)?$/i }
+
 sub edit_file {
     my ( $c, $file, %args ) = @_;
 
@@ -161,13 +165,13 @@ sub delete {
     die "No matching note found!" unless @$notes > 0;
     my $to_rm = $notes->[0];
 
-    print "Delete \"" . $to_rm->basename . "\" ? ";
+    print qq(Delete "@{[$to_rm->basename]}" ? );
     my $res = <STDIN>;
 
-    if( $res ~~ /^y(es)?$/i ) {
+    if( is_yes($res) ) {
         my $output = capture {
-            my $msg = "Removed \"". $to_rm->basename . "\".";
-            $c->stash->{git}->run( rm => $to_rm->stringify );
+            my $msg = qq(Removed "$to_rm");
+            $c->stash->{git}->run( rm => "$to_rm" );
             $c->stash->{git}->run( commit => -m => $msg );
         };
     } else {
@@ -209,6 +213,20 @@ sub list {
     my $search = @ARGV > 0 ? join ' ', @ARGV : undef;
     my $notes = find_notes( $c, search => get_filename( $search ) );
     say $_->basename for @$notes;
+    return;
+}
+
+sub rename {
+    my ( $c ) = @_;
+    my $cmd = $c->cmd;
+    die "usage: $0 $cmd <orig_name> <new_name>\n" unless @ARGV == 2;
+    my ($orig_name, $new_name) = @ARGV;
+    my $notes = find_notes( $c, search => get_filename( $orig_name ) );
+    die "No such note [$orig_name]" unless @$notes;
+    my ($orig_file, $new_file) = ($notes->[0], get_filename($new_name));
+    print qq(Rename "@{[$orig_file->basename]}" to "$new_name" ? );
+    my $res = <STDIN>;
+    $c->stash->{git}->run('mv', "$orig_file" => "$new_file") if is_yes($res);
     return;
 }
 
