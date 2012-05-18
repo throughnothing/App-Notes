@@ -29,11 +29,12 @@ my %WriteMakefileArgs = (
     "App::Rad" => 0,
     "Capture::Tiny" => 0,
     "Git::Repository" => 0,
+    "List::MoreUtils" => 0,
     "Path::Class" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.009",
+  "VERSION" => "0.010",
   "test" => {
     "TESTS" => "t/*.t"
   }
