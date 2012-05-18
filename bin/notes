@@ -5,6 +5,7 @@ use warnings;
 use App::Rad;
 use Capture::Tiny qw( capture );
 use Git::Repository;
+use List::MoreUtils qw( firstidx );
 use Path::Class qw( file dir );
 
 # ABSTRACT: Simple. Git-based. Notes.
@@ -77,19 +78,17 @@ sub has_origin {
 
 sub find_notes {
     my ( $c, %args ) = @_;
-    my $sort = $args{sort} // 1;
+    my $search = $args{search};
+    my @notes = map file($_), sort {-M $a <=> -M $b} glob file(notes_dir, '*');
 
-    opendir my $dh, notes_dir();
-    my @notes = map {
-        file( notes_dir(), $_ )
-    } grep { !/^\./ } readdir( $dh );
+    # Filter results if requested
+    if (defined $search) {
+        @notes = grep { $_->basename =~ /$search/i } @notes;
+        # If there is an exact match, make sure it is first
+        my $idx = firstidx { $search eq $_->basename } @notes;
+        unshift @notes, splice @notes, $idx, 1 if $idx > 0;
+    }
 
-    # Sort only if requested (default)
-    @notes = sort { -M $a <=> -M $b } @notes if( $sort );
-    # Filter if needed
-    @notes = grep { /$args{search}/i } @notes if $args{search};
-
-    # Return most recent match
     return \@notes;
 }
 
