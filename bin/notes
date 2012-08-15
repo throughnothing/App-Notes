@@ -225,7 +225,11 @@ sub rename {
     my ($orig_file, $new_file) = ($notes->[0], get_filename($new_name));
     print qq(Rename "@{[$orig_file->basename]}" to "$new_name" ? );
     my $res = <STDIN>;
-    $c->stash->{git}->run('mv', "$orig_file" => "$new_file") if is_yes($res);
+    if( is_yes($res) ){
+        $c->stash->{git}->run(mv => "$orig_file" => "$new_file");
+        $c->stash->{git}->run(commit => '-m',
+            "Rename " . $orig_file->basename . " => $new_file");
+    }
     return;
 }
 
