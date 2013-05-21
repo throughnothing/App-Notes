@@ -4,7 +4,7 @@ App::Notes - Simple. Git-based. Notes.
 
 # VERSION
 
-version 0.012
+version 0.013
 
 # SYNOPSIS
 
