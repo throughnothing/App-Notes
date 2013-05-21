@@ -484,6 +484,23 @@ Highlight the text you just wrote in visual mode.
 Now type C<!notes add foo> to create a new note named foo with the contents
 you had highlighted.
 
+=GPG Encryption
+
+Want to write notes about super secret stuff that needs to be secure?  It's
+incredibly easy to use vim + L<gnupg.vim|https://github.com/jamessan/vim-gnupg>
+to create and edit encrypted notes.  Just create a note with a C<.gpg> extension
+and the plugin will pick it up.
+
+    notes add super-secret-stuff.gpg
+
+Vim should open up a bottom window where you can enter GPG Recipients
+(via ID, email, name, etc.)i to encrypt the note for.  You can use your own
+key here, and on save, the note will always be encrypted to disk.
+The C<gnupg.vim> also ensures that vim does not write plaintext swap files
+to disk when editing gpg encrypted files.
+
+Go forth and secure your notes!
+
 =back
 
 =cut
