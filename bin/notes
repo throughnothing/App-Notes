@@ -5,8 +5,9 @@ use warnings;
 use App::Rad;
 use Capture::Tiny qw( capture );
 use Git::Repository;
-use List::MoreUtils qw( firstidx );
 use Path::Class qw( file dir );
+
+use App::Notes;
 
 # ABSTRACT: Simple. Git-based. Notes.
 
@@ -27,110 +28,13 @@ sub setup {
     $c->register_command(mv => \&rename, 'alias for rename');
 }
 
-sub pre_process {
-    my ( $c ) = @_;
-    my $cmd = $c->cmd;
+sub pre_process { pre_process_base( @_ ) }
 
-    # If we aren't initializing, check to make sure our notes directory exists
-    if( $cmd ne 'init' ) {
-        if( -d notes_repo() ) {
-            $c->stash->{git} = Git::Repository->new( git_dir => notes_repo() );
-        } else {
-            # We are not initialized
-            die "Notes Directory has not been initialized!\n" .
-                "Run init [remote git repo] to initialize.\n";
-        }
-    }
+sub post_process { post_process_base( @_ ) }
 
-    return if not $c->is_command($cmd) or $cmd ~~ [qw( help init sync )];
-    sync( $c, pull_only => 1 ) if auto_sync();
-}
-
-sub post_process {
-    my ( $c ) = @_;
-    my $cmd = $c->cmd;
-    if($c->is_command($cmd) and not $cmd ~~ [qw( help init list show sync )]) {
-        sync( $c, push_only => 1 ) if auto_sync();
-    }
-    say $c->output if $c->output;
-}
-
-sub invalid {
-    my ( $c ) = @_;
-    my $cmd = $c->cmd;
-    ($cmd) = grep { /^$cmd/ } $c->commands;
-    $cmd ? $c->execute( $cmd ) : $c->execute( 'help' );
-    return; # This makes the command name not be printed from the last line
-}
+sub invalid { invalid_base( @_ ) }
 
 App::Rad->run;
-
-# helpers ---------------------------------------------------------------------
-
-sub editor { $ENV{EDITOR} || 'vim' }
-sub notes_dir { dir( $ENV{APP_NOTES_DIR} ) || dir( $ENV{HOME}, '.notes' ) }
-sub notes_repo { file( notes_dir, '.git' ) }
-sub auto_sync {  $ENV{APP_NOTES_AUTOSYNC} // 1 }
-
-sub has_origin {
-    grep { /^origin$/ } split ' ', $_[0]->stash->{git}->run( 'remote' )
-}
-
-sub find_notes {
-    my ( $c, %args ) = @_;
-    my $search = $args{search};
-    my @notes = map file($_), sort {-M $a <=> -M $b} glob file(notes_dir, '*');
-
-    # Filter results if requested
-    if (defined $search) {
-        @notes = grep { $_->basename =~ /$search/i } @notes;
-        # If there is an exact match, make sure it is first
-        my $idx = firstidx { $search eq $_->basename } @notes;
-        unshift @notes, splice @notes, $idx, 1 if $idx > 0;
-    }
-
-    return \@notes;
-}
-
-sub read_stdin { local $/; <STDIN> }
-
-sub check_stdin { ( -t STDIN ) ? 0 : read_stdin() }
-
-sub get_title { join ' ', @ARGV; }
-
-sub get_filename {
-    return undef unless $_[0];
-    ( my $r = $_[0] ) =~ s/ /-/g;
-    return  $r;
-}
-
-sub is_yes { shift ~~ /^y(es)?$/i }
-
-sub edit_file {
-    my ( $c, $file, %args ) = @_;
-
-    $args{check_stdin} //= 1; # Default to check stdin
-    my $verb = ( -e $file->stringify ) ? "Updated " : "Created ";
-
-    my $stdin = $args{check_stdin} ? check_stdin() : 0;
-    if( $stdin ) {
-        open FILE, ( $args{append} ? '>>' : '>' ), $file;
-        print FILE $stdin;
-        close FILE;
-    } else {
-        my $cmd = [ editor(), $file ];
-        # Let them edit the file
-        system join( ' ', @$cmd );
-    }
-
-    # Commit their changes if they wrote the file
-    if ( -e $file ) {
-        my $output = capture {
-            $c->stash->{git}->run( add => $file->stringify );
-            $c->stash->{git}->run( commit => '-m', $verb . $file->basename );
-        };
-    }
-}
 
 # commands --------------------------------------------------------------------
 
@@ -189,23 +93,7 @@ sub edit {
     edit_file( $c, $to_edit, check_stdin => 0 );
 }
 
-sub init {
-    my ( $c ) = @_;
-
-    die "Notes dir already exists!" if -d notes_dir();
-
-    my $dir = notes_dir();
-    my $repo = $ARGV[0];
-    my $output = capture {
-        if( $repo ) {
-            say "Initializing notes from $repo...";
-            Git::Repository->run( clone => $repo, $dir->stringify );
-        } else {
-            say "Initializing notes ($dir)...";
-            print Git::Repository->run( init => $dir->stringify );
-        }
-    }
-}
+sub init { init_base( @_ ) }
 
 sub list {
     my ( $c ) = @_;
@@ -254,16 +142,7 @@ sub show {
     system "cat $notes->[0]";
 }
 
-sub sync {
-    my ( $c, %args ) = @_;
-    return unless has_origin( $c );
-
-    my $output = capture {
-        $c->stash->{git}->run( 'pull' ) unless $args{push_only};
-        $c->stash->{git}->run( 'push' ) unless $args{pull_only};
-    };
-    return;
-}
+sub sync { sync_base( @_ ) }
 
 # PODNAME: notes
 

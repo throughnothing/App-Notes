@@ -1,0 +1,88 @@
+#!/usr/bin/env perl
+use v5.10;
+use strict;
+use warnings;
+use App::Rad;
+use Capture::Tiny qw( capture );
+use DateTime;
+
+use App::Notes;
+
+# ABSTRACT: Simple. Git-based. Item Tracking.
+
+sub setup {
+    my ( $c ) = @_;
+    $c->register_commands({
+        add     => 'add a new track point',
+        list    => 'list track points [--time="..."]',
+        sync    => 'Sync track events with remote (pull + push)',
+    });
+}
+
+sub pre_process { pre_process_base( @_ ) }
+
+sub post_process { post_process_base( @_ ) }
+
+sub invalid { invalid_base( @_ ) }
+
+App::Rad->run;
+
+# commands --------------------------------------------------------------------
+
+sub init { init_base( @_ ) }
+sub sync { sync_base( @_ ) }
+
+sub add {
+    my ( $c ) = @_;
+    my @argv = @{ $c->argv };
+    my $name = $argv[0];
+    my @points = @argv[1 .. scalar( @{ $c->argv } ) - 1 ];
+    $c->getopt( 'time|t=s' );
+
+    die "Need name and points" unless $name and @points;
+
+    my $now = $c->options->{time} || DateTime->now->datetime;
+    local $" = ',';
+    my $fh = track_file->open('>>');
+
+    my $str = "$name: $now,@points";
+    print $fh $str . "\n";
+    $fh->close;
+
+    $c->stash->{git}->run( add => track_file->stringify );
+    $c->stash->{git}->run( commit => '-m', "Tracked: $str" );
+    return "Saved: $str";
+}
+
+sub list {
+    my ( $c ) = @_;
+    my $filter = $c->argv->[0];
+    my @cmd = ( 'cat', track_file() );
+    push @cmd, '|', 'grep', $filter if $filter;
+    #push @cmd, '|', 'awk', "'{ print \$2 }'" if $filter;
+
+    return system "@cmd";
+
+}
+
+# PODNAME: track
+
+=head1 SYNOPSIS
+
+    Usage: notes command [arguments]
+
+    Available Commands:
+        add     add a new note, and edit it
+        list    lists id and subject of all notes
+        sync    Sync notes with remote (pull + push)
+
+    # To get started
+    $ track init
+    # Or, optionally, get started with an existing git repo
+    $ track init git@gist.github.com:12343.git
+
+    $ track add weight 465.3
+    > Saved: weight: 2013-07-11T12:02:36,465.3
+
+    # track list weight
+    > 2013-07-11T12:02:36,465.3
