@@ -29,7 +29,7 @@ sub setup {
 
 sub pre_process {
     my ( $c ) = @_;
-    my $cmd = $c->cmd;
+    my $cmd = $c->cmd || '';
 
     # If we aren't initializing, check to make sure our notes directory exists
     if( $cmd ne 'init' ) {
@@ -42,14 +42,14 @@ sub pre_process {
         }
     }
 
-    return if not $c->is_command($cmd) or $cmd ~~ [qw( help init sync )];
+    return if not $c->is_command($cmd) or $cmd =~ /^(help|init|sync)$/;
     sync( $c, pull_only => 1 ) if auto_sync();
 }
 
 sub post_process {
     my ( $c ) = @_;
-    my $cmd = $c->cmd;
-    if($c->is_command($cmd) and not $cmd ~~ [qw( help init list show sync )]) {
+    my $cmd = $c->cmd || '';
+    if ($c->is_command($cmd) and $cmd !~ /^(help|init|list|show|sync)$/) {
         sync( $c, push_only => 1 ) if auto_sync();
     }
     say $c->output if $c->output;
@@ -104,7 +104,7 @@ sub get_filename {
     return  $r;
 }
 
-sub is_yes { shift ~~ /^y(es)?$/i }
+sub is_yes { (shift || '') =~ /^y(es)?$/i }
 
 sub edit_file {
     my ( $c, $file, %args ) = @_;
@@ -430,7 +430,7 @@ The url should be displayed at the top and it will be of the form:
 C<git@gist.github.com:12343.git>.
 Then run this on the command line:
 
-    git init <git url>
+    notes init <git url>
 
 Now if you run C<notes list> and there should be one note listed.
 This was the file you made when you created your gist.
